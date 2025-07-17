@@ -1,0 +1,28 @@
+{
+  "name": "blog-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soa-team-11/blog-service.git"
+  },
+  "keywords": [],
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/soa-team-11/blog-service/issues"
+  },
+  "homepage": "https://github.com/soa-team-11/blog-service#readme",
+  "dependencies": {
+    "cloudinary": "^2.7.0",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.16.4",
+    "nodemon": "^3.1.10"
+  }
+}
