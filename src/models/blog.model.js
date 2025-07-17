@@ -1,7 +1,16 @@
 import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema({
-    // TODO
+    author: {
+        type: Number,
+        required: true
+    },
+    text: {
+        type: String,
+        required: true
+    }
+}, {
+    timestamps: true
 });
 
 const blogSchema = new mongoose.Schema({
