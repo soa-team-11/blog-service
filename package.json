@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/soa-team-11/blog-service#readme",
   "dependencies": {
+    "axios": "^1.10.0",
     "cloudinary": "^2.7.0",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",

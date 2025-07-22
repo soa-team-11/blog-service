@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema({
     author: {
-        type: Number,
+        type: String,
         required: true
     },
     text: {
@@ -15,7 +15,7 @@ const commentSchema = new mongoose.Schema({
 
 const blogSchema = new mongoose.Schema({
     author: {
-        type: Number,
+        type: String,
         required: true
     },
     title: {
@@ -28,7 +28,7 @@ const blogSchema = new mongoose.Schema({
     },
     images: [String],
     comments: [commentSchema],
-    likes: [Number]
+    likes: [String]
 }, {
     timestamps: true
 });
