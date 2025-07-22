@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  blog-service:
+    build: .
+    container_name: blog-service-node
+    ports:
+      - "5001:5001"
+    env_file:
+      - .env
+    environment:
+      AUTH_SERVICE_URL: "http://auth-service-go:3001"
+      STAKEHOLDERS_SERVICE_URL: "http://stakeholders-service-go:8081"
