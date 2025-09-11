@@ -6,6 +6,14 @@ export const create = async (req, res) => {
     try {
         const { author, title, description, images } = req.body;
 
+        const userExists = await doesUserExist(author);
+
+        // if (!userExists) {
+        //     return res.status(404).json({
+        //         message: "User was not found."
+        //     });
+        // }
+
         let imageURLs = [];
 
         if (images) {
@@ -39,6 +47,8 @@ export const postComment = async (req, res) => {
         const { blogId, author, text } = req.body;
 
         const blog = await Blog.findById(blogId);
+
+
 
         blog.comments.push({
             author,
