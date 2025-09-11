@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import cloudinary from "../config/cloudinary.js";
 import Blog from "../models/blog.model.js";
+import { doesUserExist, isUserFollowing } from "../external/stakeholder.external.js";
 
 export const create = async (req, res) => {
     try {
@@ -8,11 +9,11 @@ export const create = async (req, res) => {
 
         const userExists = await doesUserExist(author);
 
-        // if (!userExists) {
-        //     return res.status(404).json({
-        //         message: "User was not found."
-        //     });
-        // }
+        if (!userExists) {
+            return res.status(404).json({
+                message: "User was not found."
+            });
+        }
 
         let imageURLs = [];
 
@@ -46,9 +47,25 @@ export const postComment = async (req, res) => {
     try {
         const { blogId, author, text } = req.body;
 
+        const userExists = await doesUserExist(author);
+
+        if (!userExists) {
+            return res.status(404).json({
+                message: "User was not found."
+            });
+        }
+
+        
+
         const blog = await Blog.findById(blogId);
 
+        const isFollowing = await isUserFollowing(author, blog.author);
 
+        if (!isFollowing) {
+            return res.status(400).json({
+                message: "Cannot comment."
+            });
+        }
 
         blog.comments.push({
             author,
@@ -72,6 +89,14 @@ export const postComment = async (req, res) => {
 export const likeOrUnlike = async (req, res) => {
     try {
         const { user, blogId } = req.body;
+
+        const userExists = await doesUserExist(user);
+
+        if (!userExists) {
+            return res.status(404).json({
+                message: "User was not found."
+            });
+        }
 
         const blog = await Blog.findById(blogId);
 
