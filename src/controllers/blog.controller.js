@@ -121,3 +121,18 @@ export const likeOrUnlike = async (req, res) => {
         });
     }
 };
+
+export const getAll = async (req, res) => {
+    try {
+        const blogs = await Blog.find().sort({ createdAt: -1 }); // newest first
+
+        res.status(200).json({
+            blogs
+        });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({
+            message: "Internal server error."
+        });
+    }
+};
