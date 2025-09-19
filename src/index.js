@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 
 import blogRoutes from "./routes/blog.route.js";
 import { connectDB } from "./config/db.js";
+import { startGrpcServer } from "./grpcServer.js";
 
 dotenv.config();
 
@@ -13,3 +14,4 @@ app.use(express.json({ limit: "10mb" }));
 app.use("/api/blog", blogRoutes);
 
 app.listen(process.env.PORT, () => console.log(`Server is running on PORT: ${process.env.PORT}`));
+startGrpcServer();

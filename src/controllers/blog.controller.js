@@ -3,44 +3,32 @@ import cloudinary from "../config/cloudinary.js";
 import Blog from "../models/blog.model.js";
 import { doesUserExist, isUserFollowing } from "../external/stakeholder.external.js";
 
-export const create = async (req, res) => {
-    try {
-        const { author, title, description, images } = req.body;
-
-        const userExists = await doesUserExist(author);
-
-        if (!userExists) {
-            return res.status(404).json({
-                message: "User was not found."
-            });
-        }
-
-        let imageURLs = [];
-
-        if (images) {
-            const uploadPromises = images.map(image => cloudinary.uploader.upload(image, {
-                folder: "blogs"
-            }));
-
-            const results = await Promise.all(uploadPromises);
-            imageURLs = results.map(result => result.secure_url);
-        }
-
-        const blog = await Blog.create({
-            author,
-            title,
-            description,
-            images: imageURLs
-        });
-
-        res.status(201).json({
-            blog
-        });
-    } catch (error) {
-        res.status(400).json({
-            error: error.message
-        });
+export const create = async (data) => {
+    console.log(data.title);
+    const userExists = await doesUserExist(data.author);
+    if (!userExists) {
+        const err = new Error("User was not found.");
+        err.code = "USER_NOT_FOUND";
+        throw err;
     }
+
+    let imageURLs = [];
+    if (data.images && data.images.length) {
+        const uploadPromises = data.images.map((image) =>
+            cloudinary.uploader.upload(image, { folder: "blogs" })
+        );
+        const results = await Promise.all(uploadPromises);
+        imageURLs = results.map((r) => r.secure_url);
+    }
+
+    const blog = await Blog.create({
+        author: data.author,
+        title: data.title,
+        description: data.description,
+        images: imageURLs,
+    });
+
+    return blog;
 };
 
 export const postComment = async (req, res) => {
@@ -55,7 +43,7 @@ export const postComment = async (req, res) => {
             });
         }
 
-        
+
 
         const blog = await Blog.findById(blogId);
 
@@ -73,7 +61,7 @@ export const postComment = async (req, res) => {
         })
 
         await blog.save();
-        
+
         res.status(200).json({
             blog
         });
@@ -102,7 +90,7 @@ export const likeOrUnlike = async (req, res) => {
 
         const hasLike = blog.likes.includes(user);
 
-         if (hasLike) {
+        if (hasLike) {
             blog.likes = blog.likes.filter(id => id !== user);
         } else {
             blog.likes.push(user);
@@ -110,7 +98,7 @@ export const likeOrUnlike = async (req, res) => {
 
         await blog.save();
 
-   res.status(200).json({
+        res.status(200).json({
             blog
         });
 
