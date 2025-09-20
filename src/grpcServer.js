@@ -47,7 +47,40 @@ export function startGrpcServer() {
                     message: err.message,
                 });
             }
-        }
+        },
+         Comment: async (call, callback) => {
+            try {
+                const { blogId, author, text } = call.request;
+
+                const comment = await addComment(blogId, { author, text });
+
+                const response = {
+                    comment: {
+                        id: comment._id.toString(),
+                        author: comment.author,
+                        text: comment.text,
+                        createdAt: comment.createdAt?.toISOString?.() || new Date().toISOString(),
+                    },
+                    message: "Comment added successfully",
+                };
+
+                return callback(null, response);
+            } catch (err) {
+                console.error("gRPC Comment error:", err);
+
+                if (err.code === "BLOG_NOT_FOUND") {
+                    return callback({
+                        code: grpc.status.NOT_FOUND,
+                        message: err.message,
+                    });
+                }
+
+                return callback({
+                    code: grpc.status.INTERNAL,
+                    message: err.message,
+                });
+            }
+        },
     };
 
     const server = new grpc.Server();
@@ -67,3 +100,5 @@ export function startGrpcServer() {
         }
     );
 }
+
+
