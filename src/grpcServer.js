@@ -1,7 +1,7 @@
 import grpc from "@grpc/grpc-js";
 import protoLoader from "@grpc/proto-loader";
 import path from "path";
-import { create } from "./controllers/blog.controller.js";
+import { create, postCommentLogic } from "./controllers/blog.controller.js";
 
 const PROTO_PATH = path.resolve("proto/blog.proto");
 
@@ -48,35 +48,29 @@ export function startGrpcServer() {
                 });
             }
         },
-         Comment: async (call, callback) => {
+          PostComment: async (call, callback) => {  
             try {
                 const { blogId, author, text } = call.request;
-
-                const comment = await addComment(blogId, { author, text });
-
+                const blog = await postCommentLogic({ blogId, author, text });
                 const response = {
-                    comment: {
-                        id: comment._id.toString(),
-                        author: comment.author,
-                        text: comment.text,
-                        createdAt: comment.createdAt?.toISOString?.() || new Date().toISOString(),
+                    blog: {
+                        id: blog._id.toString(),
+                        author: blog.author,
+                        title: blog.title,
+                        description: blog.description,
+                        images: blog.images || [],
+                        comments: blog.comments.map(c => ({
+                            author: c.author,
+                            text: c.text,
+                            createdAt: c.createdAt?.toISOString() || new Date().toISOString(),
+                        })),
                     },
                     message: "Comment added successfully",
                 };
-
                 return callback(null, response);
             } catch (err) {
-                console.error("gRPC Comment error:", err);
-
-                if (err.code === "BLOG_NOT_FOUND") {
-                    return callback({
-                        code: grpc.status.NOT_FOUND,
-                        message: err.message,
-                    });
-                }
-
                 return callback({
-                    code: grpc.status.INTERNAL,
+                    code: err.code === "BLOG_NOT_FOUND" ? grpc.status.NOT_FOUND : grpc.status.INTERNAL,
                     message: err.message,
                 });
             }
