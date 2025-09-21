@@ -31,48 +31,6 @@ export const create = async (data) => {
     return blog;
 };
 
-// export const postComment = async (req, res) => {
-//     try {
-//         const { blogId, author, text } = req.body;
-
-//         const userExists = await doesUserExist(author);
-
-//         if (!userExists) {
-//             return res.status(404).json({
-//                 message: "User was not found."
-//             });
-//         }
-
-
-
-//         const blog = await Blog.findById(blogId);
-
-//         const isFollowing = await isUserFollowing(author, blog.author);
-
-//         if (!isFollowing) {
-//             return res.status(400).json({
-//                 message: "Cannot comment."
-//             });
-//         }
-
-//         blog.comments.push({
-//             author,
-//             text
-//         })
-
-//         await blog.save();
-
-//         res.status(200).json({
-//             blog
-//         });
-
-//     } catch (error) {
-//         console.log(error.message);
-//         res.status(500).json({
-//             message: "Internal server error."
-//         });
-//     }
-// };
 export const postCommentLogic = async ({ blogId, author, text }) => {
   const userExists = await doesUserExist(author);
   if (!userExists) {
@@ -101,7 +59,6 @@ export const postCommentLogic = async ({ blogId, author, text }) => {
   return blog;
 };
 
-// Keep your old Express handler, but reuse the logic:
 export const postComment = async (req, res) => {
   try {
     const { blogId, author, text } = req.body;
