@@ -1,7 +1,7 @@
 import grpc from "@grpc/grpc-js";
 import protoLoader from "@grpc/proto-loader";
 import path from "path";
-import { create, postCommentLogic } from "./controllers/blog.controller.js";
+import { create, getAllBlogs, postCommentLogic } from "./controllers/blog.controller.js";
 
 const PROTO_PATH = path.resolve("proto/blog.proto");
 
@@ -12,11 +12,8 @@ export function startGrpcServer() {
 
     const blogHandlers = {
         Create: async (call, callback) => {
-            console.log("dawjduiojwaiodjwaioj")
             try {
-                console.log("Received gRPC request:", call.request);
                 const { author, title, description, images } = call.request;
-                console.log("author:", author, "title:", title, "description:", description, "images:", images);
 
                 const blog = await create({ author, title, description, images });
 
@@ -48,7 +45,7 @@ export function startGrpcServer() {
                 });
             }
         },
-          PostComment: async (call, callback) => {  
+        PostComment: async (call, callback) => {
             try {
                 const { blogId, author, text } = call.request;
                 const blog = await postCommentLogic({ blogId, author, text });
@@ -75,9 +72,27 @@ export function startGrpcServer() {
                 });
             }
         },
+
+        GetAll: async (call, callback) => {
+            try {
+                const blogs = await getAllBlogs();
+                callback(null, { blogs });
+            } catch (err) {
+                console.error("gRPC GetAll error:", err);
+                callback({
+                    code: grpc.status.INTERNAL,
+                    message: "Failed to fetch blogs",
+                });
+            }
+        }
     };
 
-    const server = new grpc.Server();
+    const server = new grpc.Server(
+        {
+            'grpc.max_send_message_length': 50 * 1024 * 1024, // 50 MB
+            'grpc.max_receive_message_length': 50 * 1024 * 1024, // 50 MB
+        }
+    );
     server.addService(blogPackage.BlogService.service, blogHandlers);
 
     const GRPC_PORT = process.env.GRPC_PORT || 50051;

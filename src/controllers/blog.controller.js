@@ -4,7 +4,6 @@ import Blog from "../models/blog.model.js";
 import { doesUserExist, isUserFollowing } from "../external/stakeholder.external.js";
 
 export const create = async (data) => {
-    console.log(data.title);
     const userExists = await doesUserExist(data.author);
     if (!userExists) {
         const err = new Error("User was not found.");
@@ -32,47 +31,47 @@ export const create = async (data) => {
 };
 
 export const postCommentLogic = async ({ blogId, author, text }) => {
-  const userExists = await doesUserExist(author);
-  if (!userExists) {
-    const err = new Error("User not found");
-    err.code = "USER_NOT_FOUND";
-    throw err;
-  }
+    const userExists = await doesUserExist(author);
+    if (!userExists) {
+        const err = new Error("User not found");
+        err.code = "USER_NOT_FOUND";
+        throw err;
+    }
 
-  const blog = await Blog.findById(blogId);
-  if (!blog) {
-    const err = new Error("Blog not found");
-    err.code = "BLOG_NOT_FOUND";
-    throw err;
-  }
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+        const err = new Error("Blog not found");
+        err.code = "BLOG_NOT_FOUND";
+        throw err;
+    }
 
-  const isFollowing = await isUserFollowing(author, blog.author);
-  if (!isFollowing) {
-    const err = new Error("Cannot comment, not following");
-    err.code = "NOT_ALLOWED";
-    throw err;
-  }
+    const isFollowing = await isUserFollowing(author, blog.author);
+    if (!isFollowing) {
+        const err = new Error("Cannot comment, not following");
+        err.code = "NOT_ALLOWED";
+        throw err;
+    }
 
-  blog.comments.push({ author, text });
-  await blog.save();
+    blog.comments.push({ author, text });
+    await blog.save();
 
-  return blog;
+    return blog;
 };
 
 export const postComment = async (req, res) => {
-  try {
-    const { blogId, author, text } = req.body;
-    const blog = await postCommentLogic({ blogId, author, text });
-    res.status(200).json({ blog });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    try {
+        const { blogId, author, text } = req.body;
+        const blog = await postCommentLogic({ blogId, author, text });
+        res.status(200).json({ blog });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
 export const likeOrUnlike = async (req, res) => {
     try {
         const { user, blogId } = req.body;
-
+        console.log(user + "   " + blogId);
         const userExists = await doesUserExist(user);
 
         if (!userExists) {
@@ -105,17 +104,7 @@ export const likeOrUnlike = async (req, res) => {
     }
 };
 
-export const getAll = async (req, res) => {
-    try {
-        const blogs = await Blog.find().sort({ createdAt: -1 }); // newest first
-
-        res.status(200).json({
-            blogs
-        });
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({
-            message: "Internal server error."
-        });
-    }
+export const getAllBlogs = async () => {
+    const blogs = await Blog.find().sort({ createdAt: -1 });
+    return blogs;
 };
